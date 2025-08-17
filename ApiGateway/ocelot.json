@@ -1,0 +1,33 @@
+{
+  "GlobalConfiguration": {
+    "BaseUrl": "http://localhost:7000",
+    "RateLimitOptions": { "DisableRateLimitHeaders": false }
+  },
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/catalog/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "catalog", "Port": 5101 }],
+      "UpstreamPathTemplate": "/api/catalog/{everything}",
+      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "JwtBearer", "AllowedScopes": [] },
+      "RateLimitOptions": { "EnableRateLimiting": true, "Period": "1s", "Limit": 10 }
+    },
+    {
+      "DownstreamPathTemplate": "/orders/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "orders", "Port": 5201 }],
+      "UpstreamPathTemplate": "/api/orders/{everything}",
+      "UpstreamHttpMethod": ["GET", "POST"],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "JwtBearer", "AllowedScopes": [] },
+      "RateLimitOptions": { "EnableRateLimiting": true, "Period": "1s", "Limit": 5 }
+    },
+    {
+      "DownstreamPathTemplate": "/events",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "notification", "Port": 7301 }],
+      "UpstreamPathTemplate": "/api/events",
+      "UpstreamHttpMethod": ["GET"]
+    }
+  ]
+}

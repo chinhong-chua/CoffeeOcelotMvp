@@ -1,0 +1,42 @@
+services:
+  catalog:
+    build: ./CatalogService
+    environment:
+      - ASPNETCORE_URLS=http://+:5101
+    ports: ["5101:5101"]
+
+  orders:
+    build: ./OrderService
+    environment:
+      - ASPNETCORE_URLS=http://+:5201
+      - KAFKA_BROKER=redpanda:9092 
+    ports: ["5201:5201"]
+    depends_on: [redpanda]
+
+  gateway:
+    build: ./ApiGateway
+    environment:
+      - ASPNETCORE_URLS=http://+:7000
+    ports: ["7000:7000"]
+    depends_on: [catalog, orders]
+  notification:
+    build: ./NotificationService
+    environment:
+      - ASPNETCORE_URLS=http://+:7301
+      - KAFKA_BROKER=redpanda:9092
+    ports:
+      - "7301:7301"
+    depends_on:
+      - redpanda
+
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v23.3.5
+    command:
+      - redpanda start
+      - --smp 1
+      - --overprovisioned
+      - --kafka-addr PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://redpanda:9092
+    ports:
+      - "9092:9092"
+      - "9644:9644"
